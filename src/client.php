@@ -14,7 +14,7 @@
 		public static function find_by_nick($nick) {
 			global $clients;
 			foreach($clients as &$client) {
-				if($client->nick == $nick)
+				if($client->nick == $nick && $client->registered)
 					return $client;
 			}
 			return false;
@@ -29,7 +29,6 @@
 			/*
 				>> :moon.n0v4.com 311 savetheinternet femanon femanon boxxy.babee * :femanon
 				>> :moon.n0v4.com 379 savetheinternet femanon :is using modes +iwrxt 
-				>> :moon.n0v4.com 378 savetheinternet femanon :is connecting from *@c-98-229-221-133.hsd1.ma.comcast.net 98.229.221.133
 				>> :moon.n0v4.com 307 savetheinternet femanon :is a registered nick
 				>> :moon.n0v4.com 319 savetheinternet femanon :@#lobby 
 				>> :moon.n0v4.com 312 savetheinternet femanon pluto.n0v4.com :Still a planet!

@@ -127,7 +127,7 @@
 					
 					if(($client = Client::find($socket)) === false) {
 						// We received data from a client that was disconnected... What?
-						// If coded right, this SHOULD NEVER HAPPEN						
+						// If coded right, this SHOULD NEVER HAPPEN
 						// TODO
 					} else {
 						// Send client the command
@@ -139,7 +139,7 @@
 		}
 		
 		// Comment out this line if you want to use a lot of CPU
-		usleep(2000);
+		usleep(100);
 	}
 ?>
 
