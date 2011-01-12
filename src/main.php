@@ -2,6 +2,7 @@
 	
 	require 'const.php';
 	require 'client.php';
+	require 'modes.php';
 	require 'channel.php';
 	require 'command.php';
 	require 'log.php';

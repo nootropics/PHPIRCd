@@ -22,7 +22,10 @@
 		
 		Join							= ":%mask% JOIN %s",
 		Part							= ":%mask% PART %s :%s",
-		Message							= ":%mask% PRIVMSG %s :%s"
+		Message							= ":%mask% PRIVMSG %s :%s",
+		
+		Whois							= ":%server% %d %nick% %s",
+		EndOfWhois						= ":%server% 318 %nick% %s :End of /WHOIS list."
 		
 		;
 		// Sent upon registration (NICK and USER combination)

@@ -42,6 +42,7 @@
 	new Command('join',		Array(1,2),	'cmd_join');
 	new Command('part',		Array(1,2),	'cmd_part');
 	new Command('privmsg',	2,			'cmd_privmsg');
+	new Command('whois',	1,			'cmd_whois');
 	
 	// Add any commands here. They must follow this format for arguments: ($client, $argv)
 	
@@ -156,6 +157,19 @@
 			// Found a user
 			// This is a PM
 			// TODO
+		}
+	}
+	
+	function cmd_whois($client, $argv) {
+		$name = $argv[0];
+		
+		if(($user = Client::find($name)) === false) {
+			// Couldn't find a user under this name
+			$client->write(IRC::sprintf(IRC::NoSuchNick, $name));
+		} else {
+			// Found him.
+			// Create a WHOIS request
+			Client::WHOIS(&$client, &$user);
 		}
 	}
 	
