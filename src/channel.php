@@ -17,15 +17,8 @@
 			return false;
 		}
 		
-		public function find_client($_client) {
-			$i = 0;
-			foreach($this->clients as &$client) {
-				if($client == $_client)
-					return $i;
-				$i++;
-			}
-			
-			return false;
+		public function find_client($client) {
+			return array_search($client, $this->clients, true);
 		}
 		
 		public static function is_valid($name) {
@@ -51,19 +44,29 @@
 		}
 		
 		public function part($oldclient, $message = false) {
-			
-			// Remove the client from the userlist
-			unset($this->clients[$this->find_client($oldclient)]);
-			
 			// Announce part
 			// TODO: Mode +u stuff
 			
 			foreach($this->clients as &$client) {
 				$client->write(IRC::sprintf(IRC::Part, $oldclient, $this->name, $message === false ? '' : $message));
 			}
+			
+			// Remove the client from the userlist
+			unset($this->clients[$this->find_client($oldclient)]);
 		}
 		
-		
+		public function message($from, $text) {
+			// TODO: No external messages flag: +n
+			// TODO: Modes +mMbn
+			
+			// Announce the message
+			foreach($this->clients as &$client) {
+				if($client == $from)
+					continue; // Don't send it to the person who sent it (or the IRC client will echo it twice)
+				
+				$client->write(IRC::sprintf(IRC::Message, $from, $this->name, $text));
+			}
+		}
 		
 	};
 ?>

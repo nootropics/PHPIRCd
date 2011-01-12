@@ -15,11 +15,14 @@
 		NotRegistered					= ":%server% 451 %nick% %s :You have not registered.",
 		
 		NoSuchNick						= ":%server% 401 %nick% %s :No such nick.",
+		NoSuchNickChannel				= ":%server% 401 %nick% %s :No such nick/channel.",
 		NoSuchServer					= ":%server% 402 %nick% %s :No such server.",
 		NoSuchChannel					= ":%server% 403 %nick% %s :No such channel.",
+		NotOnChannel					= ":%server% 442 You're not on that channel.",
 		
 		Join							= ":%mask% JOIN %s",
-		Part							= ":%mast% PART %s :%s"
+		Part							= ":%mask% PART %s :%s",
+		Message							= ":%mask% PRIVMSG %s :%s"
 		
 		;
 		// Sent upon registration (NICK and USER combination)

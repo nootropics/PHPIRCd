@@ -41,6 +41,7 @@
 	// General commands
 	new Command('join',		Array(1,2),	'cmd_join');
 	new Command('part',		Array(1,2),	'cmd_part');
+	new Command('privmsg',	2,			'cmd_privmsg');
 	
 	// Add any commands here. They must follow this format for arguments: ($client, $argv)
 	
@@ -94,6 +95,12 @@
 		// Find the channel or create it.
 		$channel = Channel::find($name, true);
 		
+		if($channel->find_client($client) !== false) {
+			// User is already on the channel
+			// Don't respond with anything
+			return;
+		}
+		
 		// TODO: Make sure the user CAN join it (+iklb, etc)
 		
 		$channel->join(&$client);
@@ -115,9 +122,41 @@
 			return;
 		}
 		
-		// TODO: Check if client is actually on the channel
+		if($channel->find_client($client) === false) {
+			// User is not on the channel
+			$client->write(IRC::sprintf(IRC::NotOnChannel, $name));
+			return;
+		}
 		
 		$channel->part(&$client, $message);
+	}
+	
+	function cmd_privmsg($client, $argv) {
+		$name = $argv[0];
+		$message = $argv[1];
+		
+		if(Channel::is_valid($name)) {
+			// Valid channel name
+			// meaning it starts with a #
+			// Treat as a channel message
+			if(($channel = Channel::find($name)) === false) {
+				// Channel doesn't exist.
+				break;
+			}
+			
+			$channel->message(&$client, $message);
+			return;
+		}
+		
+		// Treat as a PM
+		if(($user = Client::find($name)) === false) {
+			// Couldn't find a channel or user under this name
+			$client->write(IRC::sprintf(IRC::NoSuchNickChannel, $name));
+		} else {
+			// Found a user
+			// This is a PM
+			// TODO
+		}
 	}
 	
 ?>

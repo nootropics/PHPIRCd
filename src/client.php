@@ -99,6 +99,7 @@
 		
 		// Send the client a command (automatically appends CLRF)
 		public function write($line) {
+			// TODO: Broken pipe quit messages
 			socket_write($this->socket, "{$line}\r\n");
 		}
 		
