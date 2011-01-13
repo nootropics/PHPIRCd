@@ -143,6 +143,7 @@
 			// Treat as a channel message
 			if(($channel = Channel::find($name)) === false) {
 				// Channel doesn't exist.
+				$client->write(IRC::sprintf(IRC::NoSuchNickChannel, &$client, $name));
 				return;
 			}
 			
@@ -182,6 +183,7 @@
 			// Valid channel name
 			if(($channel = Channel::find($name)) === false) {
 				// Channel doesn't exist.
+				$client->write(IRC::sprintf(IRC::NoSuchNickChannel, &$client, $name));
 				return;
 			}
 			
