@@ -1,6 +1,6 @@
 <?php
 	class Channel {
-		public $name, $clients = Array(), $modes, $topic = Array('topic' => false, 'set' => false, 'time' => false);
+		public $name, $clients = Array(), $modes, $topic = Array('topic' => false, 'set' => false, 'time' => false), $created;
 		
 		public static function find($name, $create_if_not_exists = false) {
 			global $channels;
@@ -29,6 +29,7 @@
 		public function __construct($name) {
 			$this->name = $name;
 			$this->modes = new Modes();
+			$this->created = time();
 		}
 		
 		public function join($newclient) {

@@ -18,14 +18,17 @@
 		NoSuchNickChannel				= ":%server% 401 %nick% %s :No such nick/channel.",
 		NoSuchServer					= ":%server% 402 %nick% %s :No such server.",
 		NoSuchChannel					= ":%server% 403 %nick% %s :No such channel.",
-		NotOnChannel					= ":%server% 442 You're not on that channel.",
+		NotOnChannel					= ":%server% 442 %nick% %s :You're not on that channel.",
 		
 		Join							= ":%mask% JOIN %s",
 		Part							= ":%mask% PART %s :%s",
 		Message							= ":%mask% PRIVMSG %s :%s",
 		
-		Whois							= ":%server% %d %nick% %s",
-		EndOfWhois						= ":%server% 318 %nick% %s :End of /WHOIS list."
+		Whois							= ":%server% %d %nick% %s %s",
+		EndOfWhois						= ":%server% 318 %nick% %s :End of /WHOIS list.",
+		
+		ChannelModes					= ":%server% 324 %nick% %s +%s",
+		ChannelCreated					= ":%server% 329 %nick% %s %d"
 		
 		;
 		// Sent upon registration (NICK and USER combination)

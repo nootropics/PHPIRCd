@@ -43,14 +43,15 @@
 	new Command('part',		Array(1,2),	'cmd_part');
 	new Command('privmsg',	2,			'cmd_privmsg');
 	new Command('whois',	1,			'cmd_whois');
-	
+	new Command('mode',		'>0',		'cmd_mode');
+
 	// Add any commands here. They must follow this format for arguments: ($client, $argv)
 	
 	function cmd_nick($client, $argv) {
 		$nick = $argv[0];
 		
 		if(!Client::valid_nick($nick)) {
-			$client->write(IRC::sprintf(IRC::ErroneousNickname, $client, $nick));
+			$client->write(IRC::sprintf(IRC::ErroneousNickname, &$client, $client, $nick));
 			return;
 		}
 		
@@ -63,7 +64,7 @@
 				$client->init();
 		} else {
 			// Nickname already in use
-			$client->write(IRC::sprintf(IRC::NicknameAlreadyInUse, $client, $nick));
+			$client->write(IRC::sprintf(IRC::NicknameAlreadyInUse, &$client, $client, $nick));
 		}
 	}
 	
@@ -89,7 +90,7 @@
 		
 		if(!Channel::is_valid($name)) {
 			// Invalid channel name
-			$client->write(IRC::sprintf(IRC::NoSuchChannel, $name));
+			$client->write(IRC::sprintf(IRC::NoSuchChannel, &$client, $name));
 			return;
 		}
 		
@@ -119,13 +120,13 @@
 		// Find the channel
 		if(($channel = Channel::find($name)) === false) {
 			// Channel doesn't exist.
-			$client->write(IRC::sprintf(IRC::NoSuchChannel, $name));
+			$client->write(IRC::sprintf(IRC::NoSuchChannel, &$client, $name));
 			return;
 		}
 		
 		if($channel->find_client($client) === false) {
 			// User is not on the channel
-			$client->write(IRC::sprintf(IRC::NotOnChannel, $name));
+			$client->write(IRC::sprintf(IRC::NotOnChannel, &$client, $name));
 			return;
 		}
 		
@@ -142,7 +143,7 @@
 			// Treat as a channel message
 			if(($channel = Channel::find($name)) === false) {
 				// Channel doesn't exist.
-				break;
+				return;
 			}
 			
 			$channel->message(&$client, $message);
@@ -150,9 +151,9 @@
 		}
 		
 		// Treat as a PM
-		if(($user = Client::find($name)) === false) {
+		if(($user = Client::find_by_nick($name)) === false) {
 			// Couldn't find a channel or user under this name
-			$client->write(IRC::sprintf(IRC::NoSuchNickChannel, $name));
+			$client->write(IRC::sprintf(IRC::NoSuchNickChannel, &$client, $name));
 		} else {
 			// Found a user
 			// This is a PM
@@ -163,9 +164,9 @@
 	function cmd_whois($client, $argv) {
 		$name = $argv[0];
 		
-		if(($user = Client::find($name)) === false) {
+		if(($user = Client::find_by_nick($name)) === false) {
 			// Couldn't find a user under this name
-			$client->write(IRC::sprintf(IRC::NoSuchNick, $name));
+			$client->write(IRC::sprintf(IRC::NoSuchNick, &$client, $name));
 		} else {
 			// Found him.
 			// Create a WHOIS request
@@ -173,4 +174,43 @@
 		}
 	}
 	
+	function cmd_mode($client, $argv) {
+		$name = $argv[0];
+		$set = isset($argv[1]) ? $argv[1] : false;
+		
+		if(Channel::is_valid($name)) {
+			// Valid channel name
+			if(($channel = Channel::find($name)) === false) {
+				// Channel doesn't exist.
+				return;
+			}
+			
+			if($set === false) {
+				// Not setting anything.
+				
+				// Modes
+				$client->write(IRC::sprintf(IRC::ChannelModes, &$client, $name, $channel->modes->make_string()));
+				// Creation time
+				$client->write(IRC::sprintf(IRC::ChannelCreated, &$client, $name, $channel->created));
+			} else {
+				// TODO: Check for mode +o, etc, before allowing this.
+				
+				$channel->modes->mode($set);
+				var_dump($channel);
+			}
+			
+			return;
+		}
+		
+		// Treat as a PM
+		if(($user = Client::find_by_nick($name)) === false) {
+			// Couldn't find a channel or user under this name
+			$client->write(IRC::sprintf(IRC::NoSuchNickChannel, &$client, $name));
+		} else {
+			// Found a user
+			// TODO: User modes (oper only?)
+		}
+		
+		// >> :moon.n0v4.com 329 savetheinternet ####test 1294891399
+	}
 ?>

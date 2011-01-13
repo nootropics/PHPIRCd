@@ -36,9 +36,11 @@
 			*/
 			
 			// Username and real name
-			$client->write(IRC::sprintf(IRC::Whois, 311, $client, "{$who->user} {$who->host} * :{$who->realname}"));
+			$client->write(IRC::sprintf(IRC::Whois, &$client, 311, $who->nick, "{$who->user} {$who->host} * :{$who->realname}"));
 			
-			$client->write(IRC::sprintf(IRC::EndOfWhois, $client, $who->nick));
+			$client->write(IRC::sprintf(IRC::EndOfWhois, &$client, $who->nick));
+			
+			// TODO
 		}
 		
 		// New client/connection
@@ -99,10 +101,13 @@
 				if($command->need_to_be_registered && !$this->registered) {
 					// Not registered, and needs to be
 					$this->write(IRC::sprintf(IRC::NotRegistered, $this, $argv[0]));
-				} else if(	(!is_array($command->count) && $argc != $command->count) ||
-							(is_array($command->count) && !in_array($argc, $command->count))) { // Check argument count
+				} else if(!(
+							(is_string($command->count) && $command->count[0] == '>' && $argc > substr($command->count, 1)) ||  // Greater than count
+							(is_int($command->count) && $argc == $command->count) || // Fixed argument count
+							(is_array($command->count) && in_array($argc, $command->count)) // Array argument count
+							)) { // Check argument count
 					// Wrong parameter count
-					$this->write(IRC::sprintf(IRC::NotEnoughParameters, $this, $argv[0]));
+					$this->write(IRC::sprintf(IRC::NotEnoughParameters, &$this, $argv[0]));
 				} else {
 					// We don't need to worry about the first argument (command name) anymore
 					$argv = array_slice($argv, 1);
