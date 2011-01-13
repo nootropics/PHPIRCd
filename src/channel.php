@@ -21,6 +21,15 @@
 			return array_search($client, $this->clients, true);
 		}
 		
+		public function find_by_nick($name) {
+			foreach($thos->clients as &$client) {
+				if($client->nick == $nick)
+					return $client;
+			}
+			
+			return false;
+		}
+		
 		public static function is_valid($name) {
 			// TODO
 			return preg_match('/^#[a-z0-9#?!]+$/i', $name);
@@ -41,7 +50,7 @@
 			// TODO: Mode +u stuff
 			
 			foreach($this->clients as &$client) {
-				$client->write(IRC::sprintf(IRC::Join, $newclient, $this->name));
+				$client->write(IRC::sprintf(IRC::Join, &$newclient, $this->name));
 			}
 		}
 		
@@ -50,7 +59,7 @@
 			// TODO: Mode +u stuff
 			
 			foreach($this->clients as &$client) {
-				$client->write(IRC::sprintf(IRC::Part, $oldclient, $this->name, $message === false ? '' : $message));
+				$client->write(IRC::sprintf(IRC::Part, &$oldclient, $this->name, $message === false ? '' : $message));
 			}
 			
 			// Remove the client from the userlist

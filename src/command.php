@@ -177,7 +177,7 @@
 	
 	function cmd_mode($client, $argv) {
 		$name = $argv[0];
-		$set = isset($argv[1]) ? $argv[1] : false;
+		$set = isset($argv[1]) ? implode(' ', array_slice($argv, 1)) : false;
 		
 		if(Channel::is_valid($name)) {
 			// Valid channel name
@@ -198,7 +198,6 @@
 				// TODO: Check for mode +o, etc, before allowing this.
 				
 				$channel->modes->mode($set);
-				var_dump($channel);
 			}
 			
 			return;
@@ -213,6 +212,5 @@
 			// TODO: User modes (oper only?)
 		}
 		
-		// >> :moon.n0v4.com 329 savetheinternet ####test 1294891399
 	}
 ?>

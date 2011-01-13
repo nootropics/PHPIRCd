@@ -23,6 +23,7 @@
 		Join							= ":%mask% JOIN %s",
 		Part							= ":%mask% PART %s :%s",
 		Message							= ":%mask% PRIVMSG %s :%s",
+		Mode							= ":%mask% MODE %s :%s",
 		
 		Whois							= ":%server% %d %nick% %s %s",
 		EndOfWhois						= ":%server% 318 %nick% %s :End of /WHOIS list.",

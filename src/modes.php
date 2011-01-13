@@ -39,17 +39,27 @@
 				OnlySSLClientsMayJoin		= 'z';
 		
 		// $AllowMultiple: Allow multiple modes for some things (with unique values)
-		public static $AllowMultiple;
+		// $AllowParameter: Allow a parameter for this mode (don't bother putting anything from $AllowMUltiple in here)
+		public static $AllowMultiple, $AllowParameter;
 		public $modes;
 		
 		public function __construct() {
-			$this->AllowMultiple =		self::Ban .
+			$this->AllowMultiple =		self::Admin .
+										self::Ban .
 										self::BanException .
 										self::HalfOp .
 										self::InviteException .
 										self::Operator .
 										self::Owner .
 										self::Voice;
+			
+			$this->AllowParameter =		self::FloodProtection .
+										self::JoinThrottle .
+										self::Key .
+										self::Limit .
+										self::LimitRedirect;
+			
+			
 			$this->modes = Array();
 		}
 		
@@ -74,8 +84,8 @@
 			}
 			
 			if($create_if_not_exists) {
-				$this->modes[] = Array($mode, $agument);
-				return $this->find_with_arg($mode, $agument);
+				$this->modes[] = Array($mode, $argument);
+				return $this->find_with_arg($mode, $argument);
 			}
 			
 			return false;
@@ -93,8 +103,8 @@
 			// Whether we're currently at a + or - index
 			$plus = false;
 			
-			$argIndex = -1;			
-			foreach($char as &$char) {
+			$argIndex = 1;			
+			foreach($chars as &$char) {
 				// TODO: Check if it is a known char mode
 				
 				if($char == '-')
@@ -104,12 +114,41 @@
 				else
 				
 				
-				// Multiple of the same mode FOR SPECIFIC MODES ONLY (+b, +v, etc)
-				if(strstr(self::AllowMultiple, $char) !== false) {
+				
+				if(strstr($this->AllowParameter, $char) !== false) {
+					// Only one node allowed, wiht a parameter
+					
+					// Find the argument TODO: null handling
+					$arg = &$args[$argIndex++];
+					
+					if($char == self::Limit && (floor($arg) != $arg || round($arg) < 1)) {
+						// Argument is supposed to be a non-zero integer, but it wasn't.
+						continue;
+					}
+					
+					// Find or create the mode
+					if($key = $this->find($char, true)) {
+						// Set the argument
+						$this->modes[$key][1] = $arg;
+					}
+				} elseif(strstr($this->AllowMultiple, $char) !== false) {
+					// Multiple of the same mode FOR SPECIFIC MODES ONLY (+b, +v, etc)
 					// Allow multiples of the same mode name
 					
-					// Find the argument
+					// Find the argument TODO: null handling
 					$arg = &$args[$argIndex++];
+					
+					if($char == self::Admin || $char == self::Halfop || $char == self::Operator || $char == self::Owner || $char == self::Voice) {
+						// Channel-user mode
+						// Make sure the user is on the channel first
+						// TODO: Remove these modes on part/etc
+						
+						if(($parent->find_by_nick($arg)) == false) {
+							// Client is not on channel
+							// TODO
+							continue;
+						}
+					}
 					
 					// Find or create the mode
 					if($key = $this->find_with_arg($char, $arg, true)) {
@@ -131,7 +170,7 @@
 			$args = Array('');
 			foreach($this->modes as &$mode) {
 				$args[0] .= $mode[0];
-				if($args[1] !== false) {
+				if($mode[1] !== false) {
 					// Add argument too
 					$args[] = $mode[1];
 				}

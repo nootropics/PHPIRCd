@@ -1,6 +1,10 @@
 <?php
 	class Client {
-		public $ip, $hostname, $host, $socket, $nick = false, $user = false, $realname = false, $registered = false, $channels = Array();
+		public $ip, $hostname, $host, $socket, $nick = false, $user = false, $realname = false, $registered = false, $channels = Array(), $modes = '';
+		
+		// TODO: Get list of usermodes
+		const		Registered		= 'r',
+					SSL				= 'z';
 		
 		public static function find($socket) {
 			global $clients;
@@ -22,7 +26,7 @@
 		
 		public static function valid_nick($nick) {
 			// TODO: Make this configurable or at least RIGHT
-			return preg_match('/^[a-z][a-z0-9\^\[\]]+$/i', $nick);
+			return preg_match('/^[a-z][a-z0-9\^`\[\]]+$/i', $nick);
 		}
 		
 		public static function whois($client, $who) {
@@ -38,6 +42,11 @@
 			// Username and real name
 			$client->write(IRC::sprintf(IRC::Whois, &$client, 311, $who->nick, "{$who->user} {$who->host} * :{$who->realname}"));
 			
+			if($who->has(self::Registered))
+				$client->write(IRC::sprintf(IRC::Whois, &$client, 307, $who->nick, ":is a registered nick"));
+			if($who->has(self::SSL))
+				$client->write(IRC::sprintf(IRC::Whois, &$client, /* TODO */ 0, $who->nick, ":is using a secure connection"));
+			
 			$client->write(IRC::sprintf(IRC::EndOfWhois, &$client, $who->nick));
 			
 			// TODO
@@ -52,6 +61,11 @@
 			$this->lookup();
 			
 			Log::write(Log::Debug, "New connection: {$this->ip}.");
+		}
+		
+		// Check if a user has a usermode
+		public function has($mode) {
+			return (bool)strstr($this->modes, $mode) !== false;
 		}
 		
 		// Try and use a hostname
